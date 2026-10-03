@@ -8,6 +8,8 @@ namespace QrSnippet.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         private readonly ClipboardService _clipboardService;
+        private readonly ImageFileService _imageFileService;
+        private readonly QrDecoderService _decoder;
 
         [ObservableProperty]
         private string _statusMessage = "No QR detected";
@@ -16,9 +18,11 @@ namespace QrSnippet.ViewModels
         [NotifyCanExecuteChangedFor(nameof(CopyTextCommand))]
         private string? _decodedText;
 
-        public MainViewModel(ClipboardService clipboardService)
+        public MainViewModel(ClipboardService clipboardService, ImageFileService imageFileService, QrDecoderService decoder)
         {
             _clipboardService = clipboardService;
+            _imageFileService = imageFileService;
+            _decoder = decoder;
         }
 
         [RelayCommand]
@@ -36,6 +40,27 @@ namespace QrSnippet.ViewModels
                 ClipboardQrStatus.ClipboardBusy => "The clipboard is in use by another app, try again",
                 _ => "No QR detected"
             };
+        }
+
+        [RelayCommand]
+        private void OpenImage()
+        {
+            string? path = _imageFileService.PickImagePath();
+            if (path is null)
+            {
+                return;
+            }
+
+            var image = _imageFileService.LoadImage(path);
+            if (image is null)
+            {
+                DecodedText = null;
+                StatusMessage = "The selected file is not a valid image";
+                return;
+            }
+
+            DecodedText = _decoder.Decode(image);
+            StatusMessage = DecodedText ?? "No QR detected in the selected image";
         }
 
         [RelayCommand(CanExecute = nameof(CanCopyText))]

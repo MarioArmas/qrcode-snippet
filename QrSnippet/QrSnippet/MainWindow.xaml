@@ -43,6 +43,7 @@
                     Margin="5" />
 
             <Button Content="Open Image"
+                    Command="{Binding OpenImageCommand}"
                     Width="130"
                     Height="40"
                     Margin="5" />

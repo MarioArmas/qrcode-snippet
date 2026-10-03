@@ -21,7 +21,8 @@ namespace QrSnippet
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainViewModel(new ClipboardService(new QrDecoderService()));
+            var decoder = new QrDecoderService();
+            DataContext = new MainViewModel(new ClipboardService(decoder), new ImageFileService(), decoder);
         }
     }
 }
