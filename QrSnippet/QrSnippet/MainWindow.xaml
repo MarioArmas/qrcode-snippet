@@ -31,6 +31,7 @@
                     Margin="0,20,0,10">
 
             <Button Content="Paste Image"
+                    Command="{Binding PasteImageCommand}"
                     Width="130"
                     Height="40"
                     Margin="5" />
@@ -48,7 +49,7 @@
         </StackPanel>
 
         <TextBlock Grid.Row="2"
-                   Text="No QR detected"
+                   Text="{Binding StatusMessage}"
                    HorizontalAlignment="Center"
                    Foreground="Gray" />
 

@@ -8,6 +8,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using QrSnippet.Services;
+using QrSnippet.ViewModels;
 
 namespace QrSnippet
 {
@@ -19,6 +21,7 @@ namespace QrSnippet
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new MainViewModel(new ClipboardService(new QrDecoderService()));
         }
     }
 }
