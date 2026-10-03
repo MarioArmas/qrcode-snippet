@@ -48,6 +48,26 @@ namespace QrSnippet.Services
                 : new ClipboardQrResult(ClipboardQrStatus.Decoded, text);
         }
 
+        /// <summary>
+        /// Copies text to the clipboard. Returns false if the clipboard stayed busy.
+        /// </summary>
+        public bool SetText(string text)
+        {
+            try
+            {
+                WithRetry(() =>
+                {
+                    Clipboard.SetText(text);
+                    return true;
+                });
+                return true;
+            }
+            catch (COMException)
+            {
+                return false;
+            }
+        }
+
         private static BitmapSource? GetImage()
         {
             // Prefer the PNG format when present (Snipping Tool, browsers): WPF's own

@@ -12,6 +12,10 @@ namespace QrSnippet.ViewModels
         [ObservableProperty]
         private string _statusMessage = "No QR detected";
 
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(CopyTextCommand))]
+        private string? _decodedText;
+
         public MainViewModel(ClipboardService clipboardService)
         {
             _clipboardService = clipboardService;
@@ -22,6 +26,7 @@ namespace QrSnippet.ViewModels
         {
             ClipboardQrResult result = _clipboardService.ReadQr();
 
+            DecodedText = result.Text;
             StatusMessage = result.Status switch
             {
                 ClipboardQrStatus.Decoded => result.Text!,
@@ -32,5 +37,16 @@ namespace QrSnippet.ViewModels
                 _ => "No QR detected"
             };
         }
+
+        [RelayCommand(CanExecute = nameof(CanCopyText))]
+        private void CopyText()
+        {
+            if (!_clipboardService.SetText(DecodedText!))
+            {
+                StatusMessage = "The clipboard is in use by another app, try again";
+            }
+        }
+
+        private bool CanCopyText() => !string.IsNullOrEmpty(DecodedText);
     }
 }
