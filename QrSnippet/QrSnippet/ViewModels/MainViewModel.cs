@@ -10,6 +10,7 @@ namespace QrSnippet.ViewModels
         private readonly ClipboardService _clipboardService;
         private readonly ImageFileService _imageFileService;
         private readonly QrDecoderService _decoder;
+        private readonly ScreenCaptureService _screenCaptureService;
 
         [ObservableProperty]
         private string _statusMessage = "No QR detected";
@@ -18,10 +19,15 @@ namespace QrSnippet.ViewModels
         [NotifyCanExecuteChangedFor(nameof(CopyTextCommand))]
         private string? _decodedText;
 
-        public MainViewModel(ClipboardService clipboardService, ImageFileService imageFileService, QrDecoderService decoder)
+        public MainViewModel(
+            ClipboardService clipboardService,
+            ImageFileService imageFileService,
+            ScreenCaptureService screenCaptureService,
+            QrDecoderService decoder)
         {
             _clipboardService = clipboardService;
             _imageFileService = imageFileService;
+            _screenCaptureService = screenCaptureService;
             _decoder = decoder;
         }
 
@@ -61,6 +67,20 @@ namespace QrSnippet.ViewModels
 
             DecodedText = _decoder.Decode(image);
             StatusMessage = DecodedText ?? "No QR detected in the selected image";
+        }
+
+        // AsyncRelayCommand disables the button while a capture is in progress.
+        [RelayCommand]
+        private async Task CaptureAsync()
+        {
+            var image = await _screenCaptureService.CaptureRegionAsync();
+            if (image is null)
+            {
+                return;
+            }
+
+            DecodedText = _decoder.Decode(image);
+            StatusMessage = DecodedText ?? "No QR detected in the selected area";
         }
 
         [RelayCommand(CanExecute = nameof(CanCopyText))]

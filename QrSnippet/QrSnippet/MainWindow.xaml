@@ -49,6 +49,7 @@
                     Margin="5" />
 
             <Button Content="Capture"
+                    Command="{Binding CaptureCommand}"
                     Width="130"
                     Height="40"
                     Margin="5" />

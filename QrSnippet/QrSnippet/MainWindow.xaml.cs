@@ -22,7 +22,11 @@ namespace QrSnippet
         {
             InitializeComponent();
             var decoder = new QrDecoderService();
-            DataContext = new MainViewModel(new ClipboardService(decoder), new ImageFileService(), decoder);
+            DataContext = new MainViewModel(
+                new ClipboardService(decoder),
+                new ImageFileService(),
+                new ScreenCaptureService(),
+                decoder);
         }
     }
 }
