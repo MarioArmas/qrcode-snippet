@@ -5,6 +5,12 @@
         Width="600"
         Height="400">
 
+    <Window.InputBindings>
+        <KeyBinding Key="V"
+                    Modifiers="Control"
+                    Command="{Binding PasteImageCommand}" />
+    </Window.InputBindings>
+
     <Grid Margin="30">
 
         <Grid.RowDefinitions>
@@ -60,7 +66,16 @@
                      Foreground="Gray"
                      TextWrapping="Wrap"
                      MaxWidth="420"
-                     VerticalAlignment="Center" />
+                     VerticalAlignment="Center">
+
+                <!-- TextBox handles Ctrl+V itself, so it would swallow the window-level binding -->
+                <TextBox.InputBindings>
+                    <KeyBinding Key="V"
+                                Modifiers="Control"
+                                Command="{Binding PasteImageCommand}" />
+                </TextBox.InputBindings>
+
+            </TextBox>
 
             <Button Content="Copy"
                     Command="{Binding CopyTextCommand}"
