@@ -11,6 +11,7 @@ namespace QrSnippet.ViewModels
         private readonly ImageFileService _imageFileService;
         private readonly QrDecoderService _decoder;
         private readonly ScreenCaptureService _screenCaptureService;
+        private readonly LinkService _linkService;
 
         [ObservableProperty]
         private string _statusMessage = "No QR detected";
@@ -23,11 +24,13 @@ namespace QrSnippet.ViewModels
             ClipboardService clipboardService,
             ImageFileService imageFileService,
             ScreenCaptureService screenCaptureService,
+            LinkService linkService,
             QrDecoderService decoder)
         {
             _clipboardService = clipboardService;
             _imageFileService = imageFileService;
             _screenCaptureService = screenCaptureService;
+            _linkService = linkService;
             _decoder = decoder;
         }
 
@@ -46,6 +49,8 @@ namespace QrSnippet.ViewModels
                 ClipboardQrStatus.ClipboardBusy => "The clipboard is in use by another app, try again",
                 _ => "No QR detected"
             };
+
+            OpenIfWebLink(result.Text);
         }
 
         [RelayCommand]
@@ -67,6 +72,7 @@ namespace QrSnippet.ViewModels
 
             DecodedText = _decoder.Decode(image);
             StatusMessage = DecodedText ?? "No QR detected in the selected image";
+            OpenIfWebLink(DecodedText);
         }
 
         // AsyncRelayCommand disables the button while a capture is in progress.
@@ -81,6 +87,7 @@ namespace QrSnippet.ViewModels
 
             DecodedText = _decoder.Decode(image);
             StatusMessage = DecodedText ?? "No QR detected in the selected area";
+            OpenIfWebLink(DecodedText);
         }
 
         [RelayCommand(CanExecute = nameof(CanCopyText))]
@@ -93,5 +100,13 @@ namespace QrSnippet.ViewModels
         }
 
         private bool CanCopyText() => !string.IsNullOrEmpty(DecodedText);
+
+        private void OpenIfWebLink(string? text)
+        {
+            if (text is not null && LinkService.TryGetWebUrl(text, out Uri? url) && !_linkService.Open(url))
+            {
+                StatusMessage = "Could not open the link in the browser";
+            }
+        }
     }
 }

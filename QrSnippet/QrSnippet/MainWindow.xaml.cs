@@ -26,6 +26,7 @@ namespace QrSnippet
                 new ClipboardService(decoder),
                 new ImageFileService(),
                 new ScreenCaptureService(),
+                new LinkService(),
                 decoder);
         }
     }
