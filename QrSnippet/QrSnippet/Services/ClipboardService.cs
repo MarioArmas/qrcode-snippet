@@ -44,8 +44,8 @@ namespace QrSnippet.Services
 
             string? text = _decoder.Decode(image);
             return text is null
-                ? new ClipboardQrResult(ClipboardQrStatus.NoQrFound)
-                : new ClipboardQrResult(ClipboardQrStatus.Decoded, text);
+                ? new ClipboardQrResult(ClipboardQrStatus.NoQrFound, Image: image)
+                : new ClipboardQrResult(ClipboardQrStatus.Decoded, text, image);
         }
 
         /// <summary>

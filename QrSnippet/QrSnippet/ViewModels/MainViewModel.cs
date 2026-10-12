@@ -1,3 +1,4 @@
+using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using QrSnippet.Models;
@@ -7,18 +8,37 @@ namespace QrSnippet.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
+        private const int FeedbackDurationMs = 2500;
+
         private readonly ClipboardService _clipboardService;
         private readonly ImageFileService _imageFileService;
         private readonly QrDecoderService _decoder;
         private readonly ScreenCaptureService _screenCaptureService;
         private readonly LinkService _linkService;
+        private CancellationTokenSource? _feedbackCts;
 
         [ObservableProperty]
-        private string _statusMessage = "No QR detected";
+        private ScanState _state = ScanState.Idle;
+
+        [ObservableProperty]
+        private string _statusMessage = "Nothing scanned yet";
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CopyTextCommand))]
         private string? _decodedText;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(OpenLinkCommand))]
+        private Uri? _detectedUrl;
+
+        [ObservableProperty]
+        private BitmapSource? _previewImage;
+
+        /// <summary>
+        /// Short-lived confirmation such as "Copied to clipboard"; cleared automatically.
+        /// </summary>
+        [ObservableProperty]
+        private string? _feedback;
 
         public MainViewModel(
             ClipboardService clipboardService,
@@ -39,40 +59,47 @@ namespace QrSnippet.ViewModels
         {
             ClipboardQrResult result = _clipboardService.ReadQr();
 
-            DecodedText = result.Text;
-            StatusMessage = result.Status switch
+            switch (result.Status)
             {
-                ClipboardQrStatus.Decoded => result.Text!,
-                ClipboardQrStatus.ContainsText => "The clipboard contains text, not an image",
-                ClipboardQrStatus.NoQrFound => "No QR detected in the pasted image",
-                ClipboardQrStatus.Empty => "The clipboard is empty",
-                ClipboardQrStatus.ClipboardBusy => "The clipboard is in use by another app, try again",
-                _ => "No QR detected"
-            };
-
-            OpenIfWebLink(result.Text);
+                case ClipboardQrStatus.Decoded:
+                case ClipboardQrStatus.NoQrFound:
+                    ShowScan(result.Image!, result.Text, "pasted image");
+                    break;
+                case ClipboardQrStatus.ContainsText:
+                    ShowProblem(ScanState.Warning, "The clipboard contains text, not an image");
+                    break;
+                case ClipboardQrStatus.Empty:
+                    ShowProblem(ScanState.Warning, "The clipboard is empty. Copy an image first");
+                    break;
+                case ClipboardQrStatus.ClipboardBusy:
+                    ShowProblem(ScanState.Error, "The clipboard is in use by another app. Try again");
+                    break;
+            }
         }
 
         [RelayCommand]
         private void OpenImage()
         {
             string? path = _imageFileService.PickImagePath();
-            if (path is null)
+            if (path is not null)
             {
-                return;
+                LoadFile(path);
             }
+        }
 
+        /// <summary>
+        /// Scans an image file; used by the Open dialog and by drag and drop.
+        /// </summary>
+        public void LoadFile(string path)
+        {
             var image = _imageFileService.LoadImage(path);
             if (image is null)
             {
-                DecodedText = null;
-                StatusMessage = "The selected file is not a valid image";
+                ShowProblem(ScanState.Error, "That file is not a valid image");
                 return;
             }
 
-            DecodedText = _decoder.Decode(image);
-            StatusMessage = DecodedText ?? "No QR detected in the selected image";
-            OpenIfWebLink(DecodedText);
+            ShowScan(image, _decoder.Decode(image), "selected image");
         }
 
         // AsyncRelayCommand disables the button while a capture is in progress.
@@ -80,32 +107,80 @@ namespace QrSnippet.ViewModels
         private async Task CaptureAsync()
         {
             var image = await _screenCaptureService.CaptureRegionAsync();
-            if (image is null)
+            if (image is not null)
             {
-                return;
+                ShowScan(image, _decoder.Decode(image), "selected area");
             }
-
-            DecodedText = _decoder.Decode(image);
-            StatusMessage = DecodedText ?? "No QR detected in the selected area";
-            OpenIfWebLink(DecodedText);
         }
 
         [RelayCommand(CanExecute = nameof(CanCopyText))]
         private void CopyText()
         {
-            if (!_clipboardService.SetText(DecodedText!))
-            {
-                StatusMessage = "The clipboard is in use by another app, try again";
-            }
+            ShowFeedback(_clipboardService.SetText(DecodedText!)
+                ? "Copied to clipboard"
+                : "The clipboard is in use by another app. Try again");
         }
 
         private bool CanCopyText() => !string.IsNullOrEmpty(DecodedText);
 
-        private void OpenIfWebLink(string? text)
+        [RelayCommand(CanExecute = nameof(CanOpenLink))]
+        private void OpenLink()
         {
-            if (text is not null && LinkService.TryGetWebUrl(text, out Uri? url) && !_linkService.Open(url))
+            ShowFeedback(_linkService.Open(DetectedUrl!)
+                ? "Opened in your browser"
+                : "Could not open the link in the browser");
+        }
+
+        private bool CanOpenLink() => DetectedUrl is not null;
+
+        private void ShowScan(BitmapSource image, string? text, string source)
+        {
+            PreviewImage = image;
+            DecodedText = text;
+            DetectedUrl = text is not null && LinkService.TryGetWebUrl(text, out Uri? url) ? url : null;
+            Feedback = null;
+
+            if (text is null)
             {
-                StatusMessage = "Could not open the link in the browser";
+                State = ScanState.Warning;
+                StatusMessage = $"No QR code found in the {source}";
+                return;
+            }
+
+            State = ScanState.Success;
+            StatusMessage = DetectedUrl is null ? "QR code detected" : "Link detected";
+
+            if (DetectedUrl is not null)
+            {
+                OpenLink();
+            }
+        }
+
+        private void ShowProblem(ScanState state, string message)
+        {
+            PreviewImage = null;
+            DecodedText = null;
+            DetectedUrl = null;
+            Feedback = null;
+            State = state;
+            StatusMessage = message;
+        }
+
+        // Fire-and-forget: a newer message cancels the pending clear of the previous one.
+        private async void ShowFeedback(string message)
+        {
+            _feedbackCts?.Cancel();
+            var cts = _feedbackCts = new CancellationTokenSource();
+            Feedback = message;
+
+            try
+            {
+                await Task.Delay(FeedbackDurationMs, cts.Token);
+                Feedback = null;
+            }
+            catch (TaskCanceledException)
+            {
+                // Replaced by a newer message.
             }
         }
     }

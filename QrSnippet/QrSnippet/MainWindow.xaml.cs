@@ -29,5 +29,39 @@ namespace QrSnippet
                 new LinkService(),
                 decoder);
         }
+
+        private MainViewModel ViewModel => (MainViewModel)DataContext;
+
+        // Preview* events are used because the result TextBox would otherwise handle text drops itself.
+        private void Window_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            bool canDrop = GetDroppedFile(e) is not null;
+            e.Effects = canDrop ? DragDropEffects.Copy : DragDropEffects.None;
+            DropHint.Visibility = canDrop ? Visibility.Visible : Visibility.Collapsed;
+            e.Handled = true;
+        }
+
+        private void Window_PreviewDragLeave(object sender, DragEventArgs e)
+        {
+            DropHint.Visibility = Visibility.Collapsed;
+        }
+
+        private void Window_PreviewDrop(object sender, DragEventArgs e)
+        {
+            DropHint.Visibility = Visibility.Collapsed;
+            e.Handled = true;
+
+            if (GetDroppedFile(e) is string path)
+            {
+                ViewModel.LoadFile(path);
+                Activate();
+            }
+        }
+
+        // Only a single file is accepted; its content is validated when it is loaded.
+        private static string? GetDroppedFile(DragEventArgs e)
+        {
+            return e.Data.GetData(DataFormats.FileDrop) is string[] { Length: 1 } files ? files[0] : null;
+        }
     }
 }
