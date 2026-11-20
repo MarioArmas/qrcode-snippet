@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="QrSnippet.Tests/QrSnippet.Tests.csproj" />
   <Project Path="QrSnippet/QrSnippet.csproj" />
 </Solution>
