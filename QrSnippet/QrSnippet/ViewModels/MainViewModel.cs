@@ -17,8 +17,14 @@ namespace QrSnippet.ViewModels
         private readonly LinkService _linkService;
         private CancellationTokenSource? _feedbackCts;
 
+        // Incremented on every new scan or problem so a slower, older decode cannot overwrite it.
+        private int _scanId;
+
         [ObservableProperty]
         private ScanState _state = ScanState.Idle;
+
+        [ObservableProperty]
+        private bool _isScanning;
 
         [ObservableProperty]
         private string _statusMessage = "Nothing scanned yet";
@@ -54,43 +60,43 @@ namespace QrSnippet.ViewModels
             _decoder = decoder;
         }
 
-        [RelayCommand]
-        private void PasteImage()
+        // Concurrent executions allowed: a new paste or file replaces a scan still in progress.
+        [RelayCommand(AllowConcurrentExecutions = true)]
+        private async Task PasteImageAsync()
         {
-            ClipboardQrResult result = _clipboardService.ReadQr();
+            ClipboardImageResult result = _clipboardService.ReadImage();
 
             switch (result.Status)
             {
-                case ClipboardQrStatus.Decoded:
-                case ClipboardQrStatus.NoQrFound:
-                    ShowScan(result.Image!, result.Text, "pasted image");
+                case ClipboardImageStatus.HasImage:
+                    await ScanAsync(result.Image!, "pasted image");
                     break;
-                case ClipboardQrStatus.ContainsText:
+                case ClipboardImageStatus.ContainsText:
                     ShowProblem(ScanState.Warning, "The clipboard contains text, not an image");
                     break;
-                case ClipboardQrStatus.Empty:
+                case ClipboardImageStatus.Empty:
                     ShowProblem(ScanState.Warning, "The clipboard is empty. Copy an image first");
                     break;
-                case ClipboardQrStatus.ClipboardBusy:
+                case ClipboardImageStatus.ClipboardBusy:
                     ShowProblem(ScanState.Error, "The clipboard is in use by another app. Try again");
                     break;
             }
         }
 
-        [RelayCommand]
-        private void OpenImage()
+        [RelayCommand(AllowConcurrentExecutions = true)]
+        private async Task OpenImageAsync()
         {
             string? path = _imageFileService.PickImagePath();
             if (path is not null)
             {
-                LoadFile(path);
+                await LoadFileAsync(path);
             }
         }
 
         /// <summary>
         /// Scans an image file; used by the Open dialog and by drag and drop.
         /// </summary>
-        public void LoadFile(string path)
+        public async Task LoadFileAsync(string path)
         {
             var image = _imageFileService.LoadImage(path);
             if (image is null)
@@ -99,7 +105,7 @@ namespace QrSnippet.ViewModels
                 return;
             }
 
-            ShowScan(image, _decoder.Decode(image), "selected image");
+            await ScanAsync(image, "selected image");
         }
 
         // AsyncRelayCommand disables the button while a capture is in progress.
@@ -109,7 +115,7 @@ namespace QrSnippet.ViewModels
             var image = await _screenCaptureService.CaptureRegionAsync();
             if (image is not null)
             {
-                ShowScan(image, _decoder.Decode(image), "selected area");
+                await ScanAsync(image, "selected area");
             }
         }
 
@@ -132,6 +138,30 @@ namespace QrSnippet.ViewModels
         }
 
         private bool CanOpenLink() => DetectedUrl is not null;
+
+        // Shows the image right away and decodes it off the UI thread.
+        private async Task ScanAsync(BitmapSource image, string source)
+        {
+            int scanId = ++_scanId;
+
+            PreviewImage = image;
+            DecodedText = null;
+            DetectedUrl = null;
+            Feedback = null;
+            State = ScanState.Idle;
+            StatusMessage = "Scanning…";
+            IsScanning = true;
+
+            string? text = await _decoder.DecodeAsync(image);
+
+            if (scanId != _scanId)
+            {
+                return; // Superseded by a newer scan or problem.
+            }
+
+            IsScanning = false;
+            ShowScan(image, text, source);
+        }
 
         private void ShowScan(BitmapSource image, string? text, string source)
         {
@@ -158,6 +188,8 @@ namespace QrSnippet.ViewModels
 
         private void ShowProblem(ScanState state, string message)
         {
+            _scanId++;
+            IsScanning = false;
             PreviewImage = null;
             DecodedText = null;
             DetectedUrl = null;

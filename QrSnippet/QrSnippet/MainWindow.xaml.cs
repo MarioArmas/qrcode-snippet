@@ -21,13 +21,12 @@ namespace QrSnippet
         public MainWindow()
         {
             InitializeComponent();
-            var decoder = new QrDecoderService();
             DataContext = new MainViewModel(
-                new ClipboardService(decoder),
+                new ClipboardService(),
                 new ImageFileService(),
                 new ScreenCaptureService(),
                 new LinkService(),
-                decoder);
+                new QrDecoderService());
         }
 
         private MainViewModel ViewModel => (MainViewModel)DataContext;
@@ -46,15 +45,15 @@ namespace QrSnippet
             DropHint.Visibility = Visibility.Collapsed;
         }
 
-        private void Window_PreviewDrop(object sender, DragEventArgs e)
+        private async void Window_PreviewDrop(object sender, DragEventArgs e)
         {
             DropHint.Visibility = Visibility.Collapsed;
             e.Handled = true;
 
             if (GetDroppedFile(e) is string path)
             {
-                ViewModel.LoadFile(path);
                 Activate();
+                await ViewModel.LoadFileAsync(path);
             }
         }
 

@@ -10,24 +10,24 @@ namespace QrSnippet.Services
     /// </summary>
     public class QrDecoderService
     {
-        private readonly BarcodeReaderGeneric _reader = new()
-        {
-            AutoRotate = true,
-            Options = new DecodingOptions
-            {
-                PossibleFormats = [BarcodeFormat.QR_CODE],
-                TryHarder = true,
-                TryInverted = true
-            }
-        };
-
         /// <summary>
         /// Returns the text encoded in the QR code, or null if none is found.
+        /// Runs on a thread-pool thread because TryHarder on a large image can take seconds.
         /// </summary>
-        public string? Decode(BitmapSource image)
+        public Task<string?> DecodeAsync(BitmapSource image)
         {
             ArgumentNullException.ThrowIfNull(image);
 
+            if (!image.IsFrozen)
+            {
+                throw new ArgumentException("The image must be frozen to be read from a background thread.", nameof(image));
+            }
+
+            return Task.Run(() => Decode(image));
+        }
+
+        private static string? Decode(BitmapSource image)
+        {
             // Normalize to BGRA32 so the raw pixels map directly to a ZXing luminance source.
             BitmapSource bgra = image.Format == PixelFormats.Bgra32
                 ? image
@@ -40,7 +40,19 @@ namespace QrSnippet.Services
             bgra.CopyPixels(pixels, stride, 0);
 
             var source = new RGBLuminanceSource(pixels, width, height, RGBLuminanceSource.BitmapFormat.BGRA32);
-            return _reader.Decode(source)?.Text;
+            return CreateReader().Decode(source)?.Text;
         }
+
+        // A new reader per scan: readers are not thread-safe and two scans may overlap.
+        private static BarcodeReaderGeneric CreateReader() => new()
+        {
+            AutoRotate = true,
+            Options = new DecodingOptions
+            {
+                PossibleFormats = [BarcodeFormat.QR_CODE],
+                TryHarder = true,
+                TryInverted = true
+            }
+        };
     }
 }

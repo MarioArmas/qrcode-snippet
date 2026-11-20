@@ -31,6 +31,7 @@
         <converters:NullToVisibilityConverter x:Key="VisibleWhenSet" />
         <converters:NullToVisibilityConverter x:Key="VisibleWhenNull"
                                               Invert="True" />
+        <BooleanToVisibilityConverter x:Key="VisibleWhenTrue" />
 
         <!-- Segoe Fluent Icons glyph -->
         <Style x:Key="IconStyle"
@@ -239,6 +240,11 @@
                     <TextBlock Text="{Binding StatusMessage}"
                                FontWeight="SemiBold"
                                TextWrapping="Wrap" />
+
+                    <ProgressBar IsIndeterminate="True"
+                                 Margin="0,8,0,0"
+                                 AutomationProperties.Name="Scanning"
+                                 Visibility="{Binding IsScanning, Converter={StaticResource VisibleWhenTrue}}" />
 
                     <!-- Read-only TextBox so the decoded text can be selected -->
                     <TextBox Text="{Binding DecodedText, Mode=OneWay}"

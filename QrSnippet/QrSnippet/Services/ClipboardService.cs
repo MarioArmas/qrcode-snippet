@@ -7,7 +7,7 @@ using QrSnippet.Models;
 namespace QrSnippet.Services
 {
     /// <summary>
-    /// Reads an image from the clipboard and decodes the QR code it contains.
+    /// Reads images from and writes text to the clipboard.
     /// Must be called from the UI (STA) thread.
     /// </summary>
     public class ClipboardService
@@ -15,14 +15,7 @@ namespace QrSnippet.Services
         private const int MaxAttempts = 5;
         private const int RetryDelayMs = 50;
 
-        private readonly QrDecoderService _decoder;
-
-        public ClipboardService(QrDecoderService decoder)
-        {
-            _decoder = decoder;
-        }
-
-        public ClipboardQrResult ReadQr()
+        public ClipboardImageResult ReadImage()
         {
             BitmapSource? image;
             bool containsText;
@@ -33,19 +26,16 @@ namespace QrSnippet.Services
             }
             catch (COMException)
             {
-                return new ClipboardQrResult(ClipboardQrStatus.ClipboardBusy);
+                return new ClipboardImageResult(ClipboardImageStatus.ClipboardBusy);
             }
 
             // An image takes priority: browsers and Office often put text alongside a copied image.
             if (image is null)
             {
-                return new ClipboardQrResult(containsText ? ClipboardQrStatus.ContainsText : ClipboardQrStatus.Empty);
+                return new ClipboardImageResult(containsText ? ClipboardImageStatus.ContainsText : ClipboardImageStatus.Empty);
             }
 
-            string? text = _decoder.Decode(image);
-            return text is null
-                ? new ClipboardQrResult(ClipboardQrStatus.NoQrFound, Image: image)
-                : new ClipboardQrResult(ClipboardQrStatus.Decoded, text, image);
+            return new ClipboardImageResult(ClipboardImageStatus.HasImage, image);
         }
 
         /// <summary>
@@ -87,7 +77,15 @@ namespace QrSnippet.Services
                 }
             }
 
-            return Clipboard.ContainsImage() ? Clipboard.GetImage() : null;
+            if (!Clipboard.ContainsImage())
+            {
+                return null;
+            }
+
+            // Frozen so it can be decoded on a background thread.
+            BitmapSource? image = Clipboard.GetImage();
+            image?.Freeze();
+            return image;
         }
 
         // The clipboard is a shared resource; another process may hold it open briefly.
