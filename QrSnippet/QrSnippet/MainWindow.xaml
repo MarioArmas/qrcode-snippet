@@ -4,9 +4,9 @@
         xmlns:models="clr-namespace:QrSnippet.Models"
         xmlns:converters="clr-namespace:QrSnippet.Converters"
         Title="QR Reader"
-        Width="640"
+        Width="980"
         Height="600"
-        MinWidth="500"
+        MinWidth="820"
         MinHeight="480"
         WindowStartupLocation="CenterScreen"
         AllowDrop="True"
@@ -59,129 +59,281 @@
 
     <Grid Margin="24">
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="300" />
+        </Grid.ColumnDefinitions>
 
-        <!-- Preview / drop zone -->
-        <Grid Grid.Row="0">
+        <Grid Grid.Column="0">
 
-            <Rectangle RadiusX="8"
-                       RadiusY="8"
-                       Fill="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                       Stroke="{DynamicResource TextFillColorTertiaryBrush}"
-                       StrokeThickness="1.5"
-                       StrokeDashArray="4 3" />
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-            <!-- Empty state -->
-            <StackPanel HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Visibility="{Binding PreviewImage, Converter={StaticResource VisibleWhenNull}}">
+            <!-- Preview / drop zone -->
+            <Grid Grid.Row="0">
 
-                <TextBlock Text="&#xED14;"
-                           Style="{StaticResource IconStyle}"
-                           FontSize="56"
-                           HorizontalAlignment="Center"
-                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                <Rectangle RadiusX="8"
+                           RadiusY="8"
+                           Fill="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                           Stroke="{DynamicResource TextFillColorTertiaryBrush}"
+                           StrokeThickness="1.5"
+                           StrokeDashArray="4 3" />
 
-                <TextBlock Text="Drop an image with a QR code here"
-                           Margin="0,16,0,4"
-                           FontSize="18"
-                           FontWeight="SemiBold"
-                           HorizontalAlignment="Center" />
-
-                <TextBlock Text="or paste it, open a file, or capture part of your screen"
-                           HorizontalAlignment="Center"
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-
-            </StackPanel>
-
-            <!-- Last scanned image -->
-            <Image Source="{Binding PreviewImage}"
-                   Margin="16"
-                   Stretch="Uniform"
-                   StretchDirection="DownOnly"
-                   RenderOptions.BitmapScalingMode="HighQuality" />
-
-            <!-- Shown while a file is dragged over the window -->
-            <Border x:Name="DropHint"
-                    CornerRadius="8"
-                    BorderThickness="2"
-                    BorderBrush="{DynamicResource AccentFillColorDefaultBrush}"
-                    Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
-                    Visibility="Collapsed"
-                    IsHitTestVisible="False">
-
+                <!-- Empty state -->
                 <StackPanel HorizontalAlignment="Center"
-                            VerticalAlignment="Center">
+                            VerticalAlignment="Center"
+                            Visibility="{Binding PreviewImage, Converter={StaticResource VisibleWhenNull}}">
 
-                    <TextBlock Text="&#xE896;"
+                    <TextBlock Text="&#xED14;"
                                Style="{StaticResource IconStyle}"
-                               FontSize="40"
+                               FontSize="56"
                                HorizontalAlignment="Center"
-                               Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
 
-                    <TextBlock Text="Drop to scan"
-                               Margin="0,12,0,0"
+                    <TextBlock Text="Drop an image with a QR code here"
+                               Margin="0,16,0,4"
                                FontSize="18"
                                FontWeight="SemiBold"
                                HorizontalAlignment="Center" />
 
+                    <TextBlock Text="or paste it, open a file, or capture part of your screen"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
                 </StackPanel>
+
+                <!-- Last scanned image -->
+                <Image Source="{Binding PreviewImage}"
+                       Margin="16"
+                       Stretch="Uniform"
+                       StretchDirection="DownOnly"
+                       RenderOptions.BitmapScalingMode="HighQuality" />
+
+                <!-- Shown while a file is dragged over the window -->
+                <Border x:Name="DropHint"
+                        CornerRadius="8"
+                        BorderThickness="2"
+                        BorderBrush="{DynamicResource AccentFillColorDefaultBrush}"
+                        Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
+                        Visibility="Collapsed"
+                        IsHitTestVisible="False">
+
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+
+                        <TextBlock Text="&#xE896;"
+                                   Style="{StaticResource IconStyle}"
+                                   FontSize="40"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+
+                        <TextBlock Text="Drop to scan"
+                                   Margin="0,12,0,0"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" />
+
+                    </StackPanel>
+
+                </Border>
+
+            </Grid>
+
+            <!-- Actions -->
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Margin="0,16">
+
+                <Button Style="{StaticResource ActionButtonStyle}"
+                        Command="{Binding PasteImageCommand}"
+                        AutomationProperties.Name="Paste"
+                        ToolTip="Paste an image from the clipboard (Ctrl+V)">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE77F;"
+                                   Style="{StaticResource IconStyle}"
+                                   Margin="0,0,8,0" />
+                        <TextBlock Text="Paste" />
+                    </StackPanel>
+                </Button>
+
+                <Button Style="{StaticResource ActionButtonStyle}"
+                        Command="{Binding OpenImageCommand}"
+                        AutomationProperties.Name="Open file"
+                        ToolTip="Open an image file (Ctrl+O)">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE8E5;"
+                                   Style="{StaticResource IconStyle}"
+                                   Margin="0,0,8,0" />
+                        <TextBlock Text="Open file" />
+                    </StackPanel>
+                </Button>
+
+                <Button Style="{StaticResource ActionButtonStyle}"
+                        Command="{Binding CaptureCommand}"
+                        AutomationProperties.Name="Capture"
+                        ToolTip="Select an area of the screen (Ctrl+Shift+S)">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE7A8;"
+                                   Style="{StaticResource IconStyle}"
+                                   Margin="0,0,8,0" />
+                        <TextBlock Text="Capture" />
+                    </StackPanel>
+                </Button>
+
+            </StackPanel>
+
+            <!-- Result card -->
+            <Border Grid.Row="2"
+                    Padding="16"
+                    CornerRadius="8"
+                    BorderThickness="1"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+
+                <Grid>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Status icon: glyph and color follow the scan state -->
+                    <TextBlock Grid.Column="0"
+                               FontSize="20"
+                               Margin="0,0,12,0"
+                               VerticalAlignment="Top">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock"
+                                   BasedOn="{StaticResource IconStyle}">
+                                <Setter Property="Text"
+                                        Value="&#xE946;" />
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource TextFillColorTertiaryBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding State}"
+                                                 Value="{x:Static models:ScanState.Success}">
+                                        <Setter Property="Text"
+                                                Value="&#xE930;" />
+                                        <Setter Property="Foreground"
+                                                Value="{DynamicResource SystemFillColorSuccessBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding State}"
+                                                 Value="{x:Static models:ScanState.Warning}">
+                                        <Setter Property="Text"
+                                                Value="&#xE7BA;" />
+                                        <Setter Property="Foreground"
+                                                Value="{DynamicResource SystemFillColorCautionBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding State}"
+                                                 Value="{x:Static models:ScanState.Error}">
+                                        <Setter Property="Text"
+                                                Value="&#xEA39;" />
+                                        <Setter Property="Foreground"
+                                                Value="{DynamicResource SystemFillColorCriticalBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <StackPanel Grid.Column="1"
+                                VerticalAlignment="Center">
+
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap" />
+
+                        <ProgressBar IsIndeterminate="True"
+                                     Margin="0,8,0,0"
+                                     AutomationProperties.Name="Scanning"
+                                     Visibility="{Binding IsScanning, Converter={StaticResource VisibleWhenTrue}}" />
+
+                        <!-- Read-only TextBox so the decoded text can be selected -->
+                        <TextBox Text="{Binding DecodedText, Mode=OneWay}"
+                                 Visibility="{Binding DecodedText, Converter={StaticResource VisibleWhenSet}}"
+                                 IsReadOnly="True"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="0"
+                                 Margin="0,4,0,0"
+                                 MaxHeight="72"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto"
+                                 Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+
+                            <!-- TextBox handles Ctrl+V itself, so it would swallow the window-level binding -->
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="V"
+                                            Modifiers="Control"
+                                            Command="{Binding PasteImageCommand}" />
+                            </TextBox.InputBindings>
+
+                        </TextBox>
+
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="0,6,0,0"
+                                    Visibility="{Binding Feedback, Converter={StaticResource VisibleWhenSet}}">
+                            <TextBlock Text="&#xE73E;"
+                                       Style="{StaticResource IconStyle}"
+                                       FontSize="12"
+                                       Margin="0,0,6,0"
+                                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                            <TextBlock Text="{Binding Feedback}"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                        </StackPanel>
+
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Top"
+                                Margin="12,0,0,0">
+
+                        <Button Style="{StaticResource AccentButtonStyle}"
+                                Command="{Binding OpenLinkCommand}"
+                                AutomationProperties.Name="Open link"
+                                Visibility="{Binding DetectedUrl, Converter={StaticResource VisibleWhenSet}}"
+                                ToolTip="Open the link in your browser"
+                                Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE8A7;"
+                                           Style="{StaticResource IconStyle}"
+                                           FontSize="14"
+                                           Margin="0,0,6,0" />
+                                <TextBlock Text="Open" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding CopyTextCommand}"
+                                AutomationProperties.Name="Copy"
+                                Visibility="{Binding DecodedText, Converter={StaticResource VisibleWhenSet}}"
+                                ToolTip="Copy the decoded text">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE8C8;"
+                                           Style="{StaticResource IconStyle}"
+                                           FontSize="14"
+                                           Margin="0,0,6,0" />
+                                <TextBlock Text="Copy" />
+                            </StackPanel>
+                        </Button>
+
+                    </StackPanel>
+
+                </Grid>
 
             </Border>
 
         </Grid>
 
-        <!-- Actions -->
-        <StackPanel Grid.Row="1"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Margin="0,16">
-
-            <Button Style="{StaticResource ActionButtonStyle}"
-                    Command="{Binding PasteImageCommand}"
-                    AutomationProperties.Name="Paste"
-                    ToolTip="Paste an image from the clipboard (Ctrl+V)">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE77F;"
-                               Style="{StaticResource IconStyle}"
-                               Margin="0,0,8,0" />
-                    <TextBlock Text="Paste" />
-                </StackPanel>
-            </Button>
-
-            <Button Style="{StaticResource ActionButtonStyle}"
-                    Command="{Binding OpenImageCommand}"
-                    AutomationProperties.Name="Open file"
-                    ToolTip="Open an image file (Ctrl+O)">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE8E5;"
-                               Style="{StaticResource IconStyle}"
-                               Margin="0,0,8,0" />
-                    <TextBlock Text="Open file" />
-                </StackPanel>
-            </Button>
-
-            <Button Style="{StaticResource ActionButtonStyle}"
-                    Command="{Binding CaptureCommand}"
-                    AutomationProperties.Name="Capture"
-                    ToolTip="Select an area of the screen (Ctrl+Shift+S)">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE7A8;"
-                               Style="{StaticResource IconStyle}"
-                               Margin="0,0,8,0" />
-                    <TextBlock Text="Capture" />
-                </StackPanel>
-            </Button>
-
-        </StackPanel>
-
-        <!-- Result card -->
-        <Border Grid.Row="2"
-                Padding="16"
+        <!-- Recent scans history -->
+        <Border Grid.Column="1"
+                Margin="24,0,0,0"
                 CornerRadius="8"
                 BorderThickness="1"
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
@@ -189,134 +341,154 @@
 
             <Grid>
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-                <!-- Status icon: glyph and color follow the scan state -->
-                <TextBlock Grid.Column="0"
-                           FontSize="20"
-                           Margin="0,0,12,0"
-                           VerticalAlignment="Top">
+                <Grid Grid.Row="0"
+                      Margin="16,12,8,8">
+
+                    <TextBlock Text="Recent scans"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center" />
+
+                    <Button HorizontalAlignment="Right"
+                            Command="{Binding ClearHistoryCommand}"
+                            AutomationProperties.Name="Clear history"
+                            ToolTip="Delete all recent scans">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE74D;"
+                                       Style="{StaticResource IconStyle}"
+                                       FontSize="14"
+                                       Margin="0,0,6,0" />
+                            <TextBlock Text="Clear" />
+                        </StackPanel>
+                    </Button>
+
+                </Grid>
+
+                <!-- Empty state -->
+                <TextBlock Grid.Row="1"
+                           Text="QR codes you scan will appear here"
+                           Margin="16"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}">
                     <TextBlock.Style>
-                        <Style TargetType="TextBlock"
-                               BasedOn="{StaticResource IconStyle}">
-                            <Setter Property="Text"
-                                    Value="&#xE946;" />
-                            <Setter Property="Foreground"
-                                    Value="{DynamicResource TextFillColorTertiaryBrush}" />
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding State}"
-                                             Value="{x:Static models:ScanState.Success}">
-                                    <Setter Property="Text"
-                                            Value="&#xE930;" />
-                                    <Setter Property="Foreground"
-                                            Value="{DynamicResource SystemFillColorSuccessBrush}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding State}"
-                                             Value="{x:Static models:ScanState.Warning}">
-                                    <Setter Property="Text"
-                                            Value="&#xE7BA;" />
-                                    <Setter Property="Foreground"
-                                            Value="{DynamicResource SystemFillColorCautionBrush}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding State}"
-                                             Value="{x:Static models:ScanState.Error}">
-                                    <Setter Property="Text"
-                                            Value="&#xEA39;" />
-                                    <Setter Property="Foreground"
-                                            Value="{DynamicResource SystemFillColorCriticalBrush}" />
+                                <DataTrigger Binding="{Binding HasHistory}"
+                                             Value="False">
+                                    <Setter Property="Visibility"
+                                            Value="Visible" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
 
-                <StackPanel Grid.Column="1"
-                            VerticalAlignment="Center">
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
 
-                    <TextBlock Text="{Binding StatusMessage}"
-                               FontWeight="SemiBold"
-                               TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding History}"
+                                  Margin="8,0,8,8"
+                                  Focusable="False">
 
-                    <ProgressBar IsIndeterminate="True"
-                                 Margin="0,8,0,0"
-                                 AutomationProperties.Name="Scanning"
-                                 Visibility="{Binding IsScanning, Converter={StaticResource VisibleWhenTrue}}" />
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
 
-                    <!-- Read-only TextBox so the decoded text can be selected -->
-                    <TextBox Text="{Binding DecodedText, Mode=OneWay}"
-                             Visibility="{Binding DecodedText, Converter={StaticResource VisibleWhenSet}}"
-                             IsReadOnly="True"
-                             BorderThickness="0"
-                             Background="Transparent"
-                             Padding="0"
-                             Margin="0,4,0,0"
-                             MaxHeight="72"
-                             TextWrapping="Wrap"
-                             VerticalScrollBarVisibility="Auto"
-                             Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                <Border Padding="8"
+                                        Margin="0,2"
+                                        CornerRadius="6"
+                                        Background="{DynamicResource SubtleFillColorSecondaryBrush}">
 
-                        <!-- TextBox handles Ctrl+V itself, so it would swallow the window-level binding -->
-                        <TextBox.InputBindings>
-                            <KeyBinding Key="V"
-                                        Modifiers="Control"
-                                        Command="{Binding PasteImageCommand}" />
-                        </TextBox.InputBindings>
+                                    <Grid>
 
-                    </TextBox>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
 
-                    <StackPanel Orientation="Horizontal"
-                                Margin="0,6,0,0"
-                                Visibility="{Binding Feedback, Converter={StaticResource VisibleWhenSet}}">
-                        <TextBlock Text="&#xE73E;"
-                                   Style="{StaticResource IconStyle}"
-                                   FontSize="12"
-                                   Margin="0,0,6,0"
-                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
-                        <TextBlock Text="{Binding Feedback}"
-                                   FontSize="12"
-                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
-                    </StackPanel>
+                                        <!-- Link or plain text icon -->
+                                        <TextBlock Grid.Column="0"
+                                                   Margin="0,0,10,0"
+                                                   FontSize="14"
+                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock"
+                                                       BasedOn="{StaticResource IconStyle}">
+                                                    <Setter Property="Text"
+                                                            Value="&#xE8D2;" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsLink}"
+                                                                     Value="True">
+                                                            <Setter Property="Text"
+                                                                    Value="&#xE71B;" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
 
-                </StackPanel>
+                                        <StackPanel Grid.Column="1"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Text}"
+                                                       ToolTip="{Binding Text}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding ScannedAt.LocalDateTime, StringFormat=g}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                        </StackPanel>
 
-                <StackPanel Grid.Column="2"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Top"
-                            Margin="12,0,0,0">
+                                        <Button Grid.Column="2"
+                                                Padding="6"
+                                                Margin="6,0,0,0"
+                                                VerticalAlignment="Center"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Command="{Binding DataContext.CopyHistoryEntryCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                AutomationProperties.Name="Copy"
+                                                ToolTip="Copy to clipboard">
+                                            <TextBlock Text="&#xE8C8;"
+                                                       Style="{StaticResource IconStyle}"
+                                                       FontSize="14" />
+                                        </Button>
 
-                    <Button Style="{StaticResource AccentButtonStyle}"
-                            Command="{Binding OpenLinkCommand}"
-                            AutomationProperties.Name="Open link"
-                            Visibility="{Binding DetectedUrl, Converter={StaticResource VisibleWhenSet}}"
-                            ToolTip="Open the link in your browser"
-                            Margin="0,0,8,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8A7;"
-                                       Style="{StaticResource IconStyle}"
-                                       FontSize="14"
-                                       Margin="0,0,6,0" />
-                            <TextBlock Text="Open" />
-                        </StackPanel>
-                    </Button>
+                                        <Button Grid.Column="3"
+                                                Padding="6"
+                                                Margin="2,0,0,0"
+                                                VerticalAlignment="Center"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Command="{Binding DataContext.DeleteHistoryEntryCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                AutomationProperties.Name="Delete"
+                                                ToolTip="Remove from history">
+                                            <TextBlock Text="&#xE711;"
+                                                       Style="{StaticResource IconStyle}"
+                                                       FontSize="14" />
+                                        </Button>
 
-                    <Button Command="{Binding CopyTextCommand}"
-                            AutomationProperties.Name="Copy"
-                            Visibility="{Binding DecodedText, Converter={StaticResource VisibleWhenSet}}"
-                            ToolTip="Copy the decoded text">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8C8;"
-                                       Style="{StaticResource IconStyle}"
-                                       FontSize="14"
-                                       Margin="0,0,6,0" />
-                            <TextBlock Text="Copy" />
-                        </StackPanel>
-                    </Button>
+                                    </Grid>
 
-                </StackPanel>
+                                </Border>
+
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+
+                    </ItemsControl>
+
+                </ScrollViewer>
 
             </Grid>
 

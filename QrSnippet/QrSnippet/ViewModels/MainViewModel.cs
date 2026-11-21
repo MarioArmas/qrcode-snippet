@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,6 +16,7 @@ namespace QrSnippet.ViewModels
         private readonly QrDecoderService _decoder;
         private readonly ScreenCaptureService _screenCaptureService;
         private readonly LinkService _linkService;
+        private readonly HistoryService _historyService;
         private CancellationTokenSource? _feedbackCts;
 
         // Incremented on every new scan or problem so a slower, older decode cannot overwrite it.
@@ -51,14 +53,30 @@ namespace QrSnippet.ViewModels
             ImageFileService imageFileService,
             ScreenCaptureService screenCaptureService,
             LinkService linkService,
-            QrDecoderService decoder)
+            QrDecoderService decoder,
+            HistoryService historyService)
         {
             _clipboardService = clipboardService;
             _imageFileService = imageFileService;
             _screenCaptureService = screenCaptureService;
             _linkService = linkService;
             _decoder = decoder;
+            _historyService = historyService;
+
+            History = new ObservableCollection<HistoryEntry>(_historyService.Load());
+            History.CollectionChanged += (_, _) =>
+            {
+                OnPropertyChanged(nameof(HasHistory));
+                ClearHistoryCommand.NotifyCanExecuteChanged();
+            };
         }
+
+        /// <summary>
+        /// Recent successful scans, newest first.
+        /// </summary>
+        public ObservableCollection<HistoryEntry> History { get; }
+
+        public bool HasHistory => History.Count > 0;
 
         // Concurrent executions allowed: a new paste or file replaces a scan still in progress.
         [RelayCommand(AllowConcurrentExecutions = true)]
@@ -139,6 +157,44 @@ namespace QrSnippet.ViewModels
 
         private bool CanOpenLink() => DetectedUrl is not null;
 
+        [RelayCommand]
+        private void CopyHistoryEntry(HistoryEntry entry)
+        {
+            ShowFeedback(_clipboardService.SetText(entry.Text)
+                ? "Copied to clipboard"
+                : "The clipboard is in use by another app. Try again");
+        }
+
+        [RelayCommand]
+        private void DeleteHistoryEntry(HistoryEntry entry)
+        {
+            if (History.Remove(entry))
+            {
+                SaveHistory();
+            }
+        }
+
+        [RelayCommand(CanExecute = nameof(HasHistory))]
+        private void ClearHistory()
+        {
+            History.Clear();
+            SaveHistory();
+        }
+
+        private void AddToHistory(string text)
+        {
+            HistoryService.AddEntry(History, new HistoryEntry(text, DateTimeOffset.Now));
+            SaveHistory();
+        }
+
+        private void SaveHistory()
+        {
+            if (!_historyService.Save(History))
+            {
+                ShowFeedback("Could not save the scan history");
+            }
+        }
+
         // Shows the image right away and decodes it off the UI thread.
         private async Task ScanAsync(BitmapSource image, string source)
         {
@@ -179,6 +235,7 @@ namespace QrSnippet.ViewModels
 
             State = ScanState.Success;
             StatusMessage = DetectedUrl is null ? "QR code detected" : "Link detected";
+            AddToHistory(text);
 
             if (DetectedUrl is not null)
             {

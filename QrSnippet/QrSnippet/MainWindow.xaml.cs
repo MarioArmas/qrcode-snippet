@@ -26,7 +26,8 @@ namespace QrSnippet
                 new ImageFileService(),
                 new ScreenCaptureService(),
                 new LinkService(),
-                new QrDecoderService());
+                new QrDecoderService(),
+                new HistoryService());
         }
 
         private MainViewModel ViewModel => (MainViewModel)DataContext;
