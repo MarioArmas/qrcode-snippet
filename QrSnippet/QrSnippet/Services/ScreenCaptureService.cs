@@ -42,7 +42,13 @@ namespace QrSnippet.Services
             {
                 if (mainWindow is not null)
                 {
+                    // Captures can start from the global hotkey while minimized or in the tray;
+                    // bring the window back so the result is visible.
                     mainWindow.Show();
+                    if (mainWindow.WindowState == WindowState.Minimized)
+                    {
+                        mainWindow.WindowState = WindowState.Normal;
+                    }
                     mainWindow.Activate();
                 }
             }

@@ -6,11 +6,20 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <!-- Only for NotifyIcon (system tray); WPF has no equivalent -->
+    <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/app.ico</ApplicationIcon>
     <!-- WPF Fluent theme (ThemeMode) is still marked experimental -->
-    <NoWarn>$(NoWarn);WPF0001</NoWarn>
+    <!-- WFO0003: WinForms wants DPI set via code, but the manifest is what WPF uses here -->
+    <NoWarn>$(NoWarn);WPF0001;WFO0003</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Keep WinForms/Drawing out of the implicit usings so they don't clash with WPF types -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />

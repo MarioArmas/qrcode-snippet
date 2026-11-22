@@ -28,9 +28,66 @@ namespace QrSnippet
                 new LinkService(),
                 new QrDecoderService(),
                 new HistoryService());
+
+            _trayIcon = new TrayIconService("QR Reader", RestoreFromTray, StartCapture, Close);
         }
 
+        private const uint VK_Q = 0x51;
+
+        private readonly TrayIconService _trayIcon;
+        private GlobalHotkey? _captureHotkey;
+
         private MainViewModel ViewModel => (MainViewModel)DataContext;
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            _captureHotkey = GlobalHotkey.TryRegister(
+                this, NativeMethods.MOD_WIN | NativeMethods.MOD_SHIFT, VK_Q, StartCapture);
+
+            if (_captureHotkey is null)
+            {
+                _trayIcon.ShowNotification("QR Reader",
+                    "Win+Shift+Q is already in use by another app. Use Ctrl+Shift+S or the tray menu to capture.");
+            }
+        }
+
+        // Minimizing sends the app to the tray so it stays out of the taskbar but keeps the hotkey.
+        protected override void OnStateChanged(EventArgs e)
+        {
+            base.OnStateChanged(e);
+            if (WindowState == WindowState.Minimized)
+            {
+                Hide();
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _captureHotkey?.Dispose();
+            _trayIcon.Dispose();
+            base.OnClosed(e);
+        }
+
+        private void RestoreFromTray()
+        {
+            Show();
+            if (WindowState == WindowState.Minimized)
+            {
+                WindowState = WindowState.Normal;
+            }
+            Activate();
+        }
+
+        // Ignored while a capture is already in progress (the command is disabled then).
+        private void StartCapture()
+        {
+            if (ViewModel.CaptureCommand.CanExecute(null))
+            {
+                ViewModel.CaptureCommand.Execute(null);
+            }
+        }
 
         // Preview* events are used because the result TextBox would otherwise handle text drops itself.
         private void Window_PreviewDragOver(object sender, DragEventArgs e)

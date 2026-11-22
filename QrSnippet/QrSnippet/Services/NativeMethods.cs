@@ -4,7 +4,7 @@ using System.Windows;
 namespace QrSnippet.Services
 {
     /// <summary>
-    /// Win32 calls used for screen capture. Coordinates are physical pixels
+    /// Win32 calls used for screen capture and the global hotkey. Coordinates are physical pixels
     /// (the app is per-monitor DPI aware, see app.manifest).
     /// </summary>
     internal static class NativeMethods
@@ -13,6 +13,11 @@ namespace QrSnippet.Services
         public const uint SWP_NOACTIVATE = 0x0010;
         public const int SRCCOPY = 0x00CC0020;
         public const int CAPTUREBLT = 0x40000000;
+
+        public const int WM_HOTKEY = 0x0312;
+        public const uint MOD_SHIFT = 0x0004;
+        public const uint MOD_WIN = 0x0008;
+        public const uint MOD_NOREPEAT = 0x4000;
 
         private const int SM_XVIRTUALSCREEN = 76;
         private const int SM_YVIRTUALSCREEN = 77;
@@ -35,6 +40,12 @@ namespace QrSnippet.Services
 
         [DllImport("user32.dll")]
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr insertAfter, int x, int y, int width, int height, uint flags);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint modifiers, uint virtualKey);
+
+        [DllImport("user32.dll")]
+        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetDC(IntPtr hWnd);
