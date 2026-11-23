@@ -40,6 +40,17 @@ namespace QrSnippet.ViewModels
         [NotifyCanExecuteChangedFor(nameof(OpenLinkCommand))]
         private Uri? _detectedUrl;
 
+        /// <summary>
+        /// DetectedUrl split for display with the host highlighted; null when there is no link.
+        /// </summary>
+        [ObservableProperty]
+        private LinkDisplay? _detectedLink;
+
+        partial void OnDetectedUrlChanged(Uri? value)
+        {
+            DetectedLink = value is null ? null : LinkService.GetDisplayParts(value);
+        }
+
         [ObservableProperty]
         private BitmapSource? _previewImage;
 
@@ -237,12 +248,9 @@ namespace QrSnippet.ViewModels
 
             State = ScanState.Success;
             StatusMessage = DetectedUrl is null ? Strings.QrDetected : Strings.LinkDetected;
+            // Links are never opened automatically: a malicious QR could send the user anywhere.
+            // The UI shows the URL with its host highlighted and the user decides whether to open it.
             AddToHistory(text);
-
-            if (DetectedUrl is not null)
-            {
-                OpenLink();
-            }
         }
 
         private void ShowProblem(ScanState state, string message)

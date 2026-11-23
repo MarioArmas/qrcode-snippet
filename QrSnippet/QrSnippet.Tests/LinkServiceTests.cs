@@ -1,9 +1,36 @@
+using QrSnippet.Models;
 using QrSnippet.Services;
 
 namespace QrSnippet.Tests
 {
     public class LinkServiceTests
     {
+        [Theory]
+        [InlineData("https://example.com", "https://", "example.com", "/")]
+        [InlineData("https://www.example.com/login?next=/home#top", "https://", "www.example.com", "/login?next=/home#top")]
+        [InlineData("http://example.com:8080/a", "http://", "example.com", ":8080/a")]
+        [InlineData("https://example.com:443/a", "https://", "example.com", "/a")]
+        public void GetDisplayParts_SplitsAroundTheHost(string text, string prefix, string host, string rest)
+        {
+            Assert.True(LinkService.TryGetWebUrl(text, out Uri? url));
+
+            LinkDisplay parts = LinkService.GetDisplayParts(url);
+
+            Assert.Equal(new LinkDisplay(prefix, host, rest), parts);
+        }
+
+        [Fact]
+        public void GetDisplayParts_ShowsLookAlikeUnicodeDomainsAsPunycode()
+        {
+            // The first letter is a Cyrillic "а", not a Latin "a".
+            Assert.True(LinkService.TryGetWebUrl("https://аpple.com/", out Uri? url));
+
+            LinkDisplay parts = LinkService.GetDisplayParts(url);
+
+            Assert.StartsWith("xn--", parts.Host);
+            Assert.DoesNotContain("apple.com", parts.Host);
+        }
+
         [Theory]
         [InlineData("https://example.com", "https://example.com/")]
         [InlineData("http://example.com/path?q=1", "http://example.com/path?q=1")]

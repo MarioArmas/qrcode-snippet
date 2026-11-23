@@ -254,9 +254,17 @@
                                      AutomationProperties.Name="{x:Static p:Strings.ScanningLabel}"
                                      Visibility="{Binding IsScanning, Converter={StaticResource VisibleWhenTrue}}" />
 
-                        <!-- Read-only TextBox so the decoded text can be selected -->
+                        <!-- Links: the full URL with the host highlighted so the user sees where it goes before opening it.
+                             The Runs are on one line on purpose; line breaks between them would add spaces. -->
+                        <TextBlock Visibility="{Binding DetectedLink, Converter={StaticResource VisibleWhenSet}}"
+                                   AutomationProperties.Name="{Binding DecodedText}"
+                                   Margin="0,4,0,0"
+                                   MaxHeight="72"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"><Run Text="{Binding DetectedLink.Prefix, Mode=OneWay}" /><Run Text="{Binding DetectedLink.Host, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" /><Run Text="{Binding DetectedLink.Rest, Mode=OneWay}" /></TextBlock>
+
+                        <!-- Other text: read-only TextBox so it can be selected -->
                         <TextBox Text="{Binding DecodedText, Mode=OneWay}"
-                                 Visibility="{Binding DecodedText, Converter={StaticResource VisibleWhenSet}}"
                                  IsReadOnly="True"
                                  BorderThickness="0"
                                  Background="Transparent"
@@ -266,6 +274,22 @@
                                  TextWrapping="Wrap"
                                  VerticalScrollBarVisibility="Auto"
                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+
+                            <!-- Shown for decoded text, except links (the TextBlock above shows those) -->
+                            <TextBox.Style>
+                                <Style TargetType="TextBox"
+                                       BasedOn="{StaticResource {x:Type TextBox}}">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding DecodedText, Converter={StaticResource VisibleWhenSet}}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DetectedLink, Converter={StaticResource VisibleWhenSet}}"
+                                                     Value="Visible">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
 
                             <!-- TextBox handles Ctrl+V itself, so it would swallow the window-level binding -->
                             <TextBox.InputBindings>

@@ -140,6 +140,6 @@
     <value>Código QR detectado</value>
   </data>
   <data name="LinkDetected" xml:space="preserve">
-    <value>Enlace detectado</value>
+    <value>Enlace detectado. Revisa el dominio antes de abrirlo</value>
   </data>
 </root>

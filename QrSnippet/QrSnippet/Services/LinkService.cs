@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using QrSnippet.Models;
 
 namespace QrSnippet.Services
 {
@@ -33,6 +34,17 @@ namespace QrSnippet.Services
 
             url = parsed;
             return true;
+        }
+
+        /// <summary>
+        /// Splits the URL so the UI can highlight where it really goes. The host is shown in its
+        /// ASCII (punycode) form so look-alike Unicode domains such as "аpple.com" can't pass as real ones.
+        /// </summary>
+        public static LinkDisplay GetDisplayParts(Uri url)
+        {
+            string prefix = url.Scheme + Uri.SchemeDelimiter;
+            string port = url.IsDefaultPort ? "" : ":" + url.Port;
+            return new LinkDisplay(prefix, url.IdnHost, port + url.PathAndQuery + url.Fragment);
         }
 
         /// <summary>

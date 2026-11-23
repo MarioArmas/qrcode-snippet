@@ -259,7 +259,7 @@ namespace QrSnippet.Properties {
         }
         
         /// <summary>
-        ///   Busca una cadena traducida similar a Link detected.
+        ///   Busca una cadena traducida similar a Link detected. Check the domain before opening it.
         /// </summary>
         public static string LinkDetected {
             get {
