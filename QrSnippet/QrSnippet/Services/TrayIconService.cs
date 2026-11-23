@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Windows.Forms;
+using QrSnippet.Properties;
 
 namespace QrSnippet.Services
 {
@@ -13,10 +14,10 @@ namespace QrSnippet.Services
         public TrayIconService(string tooltip, Action open, Action capture, Action exit)
         {
             var menu = new ContextMenuStrip();
-            menu.Items.Add("Open", null, (_, _) => open()).Font = new Font(menu.Font, System.Drawing.FontStyle.Bold);
-            menu.Items.Add("Capture screen\tWin+Shift+Q", null, (_, _) => capture());
+            menu.Items.Add(Strings.Open, null, (_, _) => open()).Font = new Font(menu.Font, System.Drawing.FontStyle.Bold);
+            menu.Items.Add($"{Strings.TrayCapture}\tWin+Shift+Q", null, (_, _) => capture());
             menu.Items.Add(new ToolStripSeparator());
-            menu.Items.Add("Exit", null, (_, _) => exit());
+            menu.Items.Add(Strings.TrayExit, null, (_, _) => exit());
 
             _notifyIcon = new NotifyIcon
             {

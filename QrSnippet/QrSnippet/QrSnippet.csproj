@@ -13,12 +13,30 @@
     <!-- WPF Fluent theme (ThemeMode) is still marked experimental -->
     <!-- WFO0003: WinForms wants DPI set via code, but the manifest is what WPF uses here -->
     <NoWarn>$(NoWarn);WPF0001;WFO0003</NoWarn>
+    <!-- English is the neutral language; only satellite assemblies for these cultures are kept -->
+    <NeutralLanguage>en</NeutralLanguage>
+    <SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- Keep WinForms/Drawing out of the implicit usings so they don't clash with WPF types -->
     <Using Remove="System.Windows.Forms" />
     <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <!-- UI text. Strings.resx is English (neutral); Strings.<culture>.resx adds translations.
+       Strings.Designer.cs is checked in (the XAML compiler needs it before MSBuild's resource step)
+       and Visual Studio regenerates it when Strings.resx is saved. -->
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Strings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Update="Properties\Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

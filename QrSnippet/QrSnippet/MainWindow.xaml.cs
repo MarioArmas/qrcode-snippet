@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using QrSnippet.Properties;
 using QrSnippet.Services;
 using QrSnippet.ViewModels;
 
@@ -29,7 +30,7 @@ namespace QrSnippet
                 new QrDecoderService(),
                 new HistoryService());
 
-            _trayIcon = new TrayIconService("QR Reader", RestoreFromTray, StartCapture, Close);
+            _trayIcon = new TrayIconService(Strings.AppTitle, RestoreFromTray, StartCapture, Close);
         }
 
         private const uint VK_Q = 0x51;
@@ -48,8 +49,7 @@ namespace QrSnippet
 
             if (_captureHotkey is null)
             {
-                _trayIcon.ShowNotification("QR Reader",
-                    "Win+Shift+Q is already in use by another app. Use Ctrl+Shift+S or the tray menu to capture.");
+                _trayIcon.ShowNotification(Strings.AppTitle, Strings.HotkeyInUse);
             }
         }
 

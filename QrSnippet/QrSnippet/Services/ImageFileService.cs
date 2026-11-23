@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using QrSnippet.Properties;
 
 namespace QrSnippet.Services
 {
@@ -9,9 +10,6 @@ namespace QrSnippet.Services
     /// </summary>
     public class ImageFileService
     {
-        private const string ImageFilter =
-            "Images|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff;*.webp|All files|*.*";
-
         /// <summary>
         /// Shows the Open File dialog. Returns the selected path, or null if the user cancels.
         /// </summary>
@@ -19,8 +17,8 @@ namespace QrSnippet.Services
         {
             var dialog = new OpenFileDialog
             {
-                Title = "Open an image containing a QR code",
-                Filter = ImageFilter
+                Title = Strings.OpenDialogTitle,
+                Filter = Strings.OpenDialogFilter
             };
 
             return dialog.ShowDialog() == true ? dialog.FileName : null;

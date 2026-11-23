@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppTitle" xml:space="preserve">
+    <value>QR Reader</value>
+  </data>
+  <data name="DropHintTitle" xml:space="preserve">
+    <value>Drop an image with a QR code here</value>
+  </data>
+  <data name="DropHintSubtitle" xml:space="preserve">
+    <value>or paste it, open a file, or capture part of your screen</value>
+  </data>
+  <data name="DropToScan" xml:space="preserve">
+    <value>Drop to scan</value>
+  </data>
+  <data name="Paste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="PasteTooltip" xml:space="preserve">
+    <value>Paste an image from the clipboard (Ctrl+V)</value>
+  </data>
+  <data name="OpenFile" xml:space="preserve">
+    <value>Open file</value>
+  </data>
+  <data name="OpenFileTooltip" xml:space="preserve">
+    <value>Open an image file (Ctrl+O)</value>
+  </data>
+  <data name="Capture" xml:space="preserve">
+    <value>Capture</value>
+  </data>
+  <data name="CaptureTooltip" xml:space="preserve">
+    <value>Select an area of the screen (Ctrl+Shift+S)</value>
+  </data>
+  <data name="ScanningLabel" xml:space="preserve">
+    <value>Scanning</value>
+  </data>
+  <data name="ScanningStatus" xml:space="preserve">
+    <value>Scanning…</value>
+  </data>
+  <data name="OpenLink" xml:space="preserve">
+    <value>Open link</value>
+  </data>
+  <data name="OpenLinkTooltip" xml:space="preserve">
+    <value>Open the link in your browser</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="CopyDecodedTooltip" xml:space="preserve">
+    <value>Copy the decoded text</value>
+  </data>
+  <data name="RecentScans" xml:space="preserve">
+    <value>Recent scans</value>
+  </data>
+  <data name="ClearHistory" xml:space="preserve">
+    <value>Clear history</value>
+  </data>
+  <data name="ClearHistoryTooltip" xml:space="preserve">
+    <value>Delete all recent scans</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="HistoryEmpty" xml:space="preserve">
+    <value>QR codes you scan will appear here</value>
+  </data>
+  <data name="CopyToClipboardTooltip" xml:space="preserve">
+    <value>Copy to clipboard</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteHistoryTooltip" xml:space="preserve">
+    <value>Remove from history</value>
+  </data>
+  <data name="OverlayTitle" xml:space="preserve">
+    <value>Select an area</value>
+  </data>
+  <data name="OverlayHint" xml:space="preserve">
+    <value>Drag to select the QR code · Esc to cancel</value>
+  </data>
+  <data name="OpenDialogTitle" xml:space="preserve">
+    <value>Open an image containing a QR code</value>
+  </data>
+  <data name="OpenDialogFilter" xml:space="preserve">
+    <value>Images|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff;*.webp|All files|*.*</value>
+  </data>
+  <data name="TrayCapture" xml:space="preserve">
+    <value>Capture screen</value>
+  </data>
+  <data name="TrayExit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="HotkeyInUse" xml:space="preserve">
+    <value>Win+Shift+Q is already in use by another app. Use Ctrl+Shift+S or the tray menu to capture.</value>
+  </data>
+  <data name="NothingScanned" xml:space="preserve">
+    <value>Nothing scanned yet</value>
+  </data>
+  <data name="ClipboardHasText" xml:space="preserve">
+    <value>The clipboard contains text, not an image</value>
+  </data>
+  <data name="ClipboardEmpty" xml:space="preserve">
+    <value>The clipboard is empty. Copy an image first</value>
+  </data>
+  <data name="ClipboardBusy" xml:space="preserve">
+    <value>The clipboard is in use by another app. Try again</value>
+  </data>
+  <data name="InvalidImage" xml:space="preserve">
+    <value>That file is not a valid image</value>
+  </data>
+  <data name="CopiedToClipboard" xml:space="preserve">
+    <value>Copied to clipboard</value>
+  </data>
+  <data name="OpenedInBrowser" xml:space="preserve">
+    <value>Opened in your browser</value>
+  </data>
+  <data name="OpenLinkFailed" xml:space="preserve">
+    <value>Could not open the link in the browser</value>
+  </data>
+  <data name="HistorySaveFailed" xml:space="preserve">
+    <value>Could not save the scan history</value>
+  </data>
+  <data name="NoQrInPastedImage" xml:space="preserve">
+    <value>No QR code found in the pasted image</value>
+  </data>
+  <data name="NoQrInSelectedImage" xml:space="preserve">
+    <value>No QR code found in the selected image</value>
+  </data>
+  <data name="NoQrInSelectedArea" xml:space="preserve">
+    <value>No QR code found in the selected area</value>
+  </data>
+  <data name="QrDetected" xml:space="preserve">
+    <value>QR code detected</value>
+  </data>
+  <data name="LinkDetected" xml:space="preserve">
+    <value>Link detected</value>
+  </data>
+</root>
